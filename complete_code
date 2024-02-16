@@ -112,7 +112,6 @@ def simulate_data():
 
 simulate_data()
 
-
 # Displaying current and longest streaks for each habit
 for habit in user.habits:
     print(f"Habit: {habit.name}, Current Streak: {habit.current_streak}, Longest Streak: {habit.longest_streak}")
@@ -170,7 +169,6 @@ def show_analytics():
     return user
 
 
-
 # Running the CLI (Example loop for Jupyter Notebook)
 for _ in range(5):  # Running 5 iterations for demonstration. Replace with 'while True:' for a continuous loop.
     choice = show_main_menu()
@@ -203,5 +201,7 @@ def test_user_add_habit():
     user.add_habit(habit)
     assert habit in user.habits
     assert len(user.habits) == 1
+
+# Calling the function of the pytest module. 
 
 pytest
