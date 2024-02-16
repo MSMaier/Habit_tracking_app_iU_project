@@ -1,1 +1,208 @@
 
+from datetime import date, timedelta
+from os import path
+import json
+
+# Habit Class
+class Habit:
+    def __init__(self, name, periodicity):
+        self.name = name
+        self.periodicity = periodicity
+        self.completion_dates = set()
+        self.current_streak = 0
+        self.longest_streak = 0
+
+    def mark_complete(self, completion_date):
+        if completion_date not in self.completion_dates:
+            self.completion_dates.add(completion_date)
+            # Update streaks only if the completion is sequential
+            if self.is_sequential(completion_date):
+                self.current_streak += 1
+            else:
+                self.current_streak = 1
+            self.longest_streak = max(self.longest_streak, self.current_streak)
+
+    def is_sequential(self, completion_date):
+        if self.periodicity == 'daily':
+            return (completion_date - timedelta(days=1)) in self.completion_dates
+        elif self.periodicity == 'weekly':
+            return (completion_date - timedelta(days=7)) in self.completion_dates
+        return False
+
+    def is_completed(self, check_date):
+        return check_date in self.completion_dates
+
+    def reset_streak(self):
+        self.current_streak = 0
+
+# User Class
+class User:
+    def __init__(self, username):
+        self.username = username
+        self.habits = []
+
+    def add_habit(self, habit):
+        self.habits.append(habit)
+
+    def remove_habit(self, habit_name):
+        self.habits = [habit for habit in self.habits if habit.name != habit_name]
+
+    def get_habit(self, habit_name):
+        for habit in self.habits:
+            if habit.name == habit_name:
+                return habit
+        return None
+
+# Tracker Class
+class Tracker:
+    def __init__(self, user):
+        self.user = user
+
+    def update_streaks(self):
+        today = date.today()
+        for habit in self.user.habits:
+            last_completion = max(habit.completion_dates, default=None)
+            if last_completion and self.should_reset_streak(habit, last_completion, today):
+                habit.reset_streak()
+
+    def should_reset_streak(self, habit, last_completion, today):
+        if habit.periodicity == 'daily':
+            return (today - last_completion).days > 1
+        elif habit.periodicity == 'weekly':
+            return (today - last_completion).days > 7
+        return False
+
+# Analytics Functions (Functional Programming Approach)
+
+def get_longest_streak(habits):
+    return max(habits, key=lambda h: h.longest_streak)
+
+def get_habits_by_periodicity(habits, periodicity):
+    return list(filter(lambda h: h.periodicity == periodicity, habits))
+
+def get_all_habits(user):
+    return user.habits
+
+# Creating a user with predefined habits
+
+
+user = User("Tim Mueller")
+habits = [
+    Habit("Exercise", "daily"),
+    Habit("Read Book", "daily"),
+    Habit("Meditate", "weekly"),
+    Habit("Learn Python", "daily"),
+    Habit("Weekly Planning", "weekly")
+]
+
+for habit in habits:
+    user.add_habit(habit)
+
+# Tracker instance
+tracker = Tracker(user)
+
+# Simulate 4 weeks of sample data
+def simulate_data():
+    start_date = date.today() - timedelta(days=28)
+    for i in range(28):  # 4 weeks
+        current_date = start_date + timedelta(days=i)
+        for habit in user.habits:
+            if habit.periodicity == 'daily' or (habit.periodicity == 'weekly' and i % 7 == 0):
+                habit.mark_complete(current_date)
+        tracker.update_streaks()
+
+simulate_data()
+
+
+# Displaying current and longest streaks for each habit
+for habit in user.habits:
+    print(f"Habit: {habit.name}, Current Streak: {habit.current_streak}, Longest Streak: {habit.longest_streak}")
+
+# Demonstrating the analytics functions using the current data
+
+# 1. Finding the habit with the longest overall streak
+habit_with_longest_streak = get_longest_streak(user.habits)
+longest_streak_info = (habit_with_longest_streak.name, habit_with_longest_streak.longest_streak)
+
+# 2. Listing habits by periodicity (daily and weekly)
+daily_habits = get_habits_by_periodicity(user.habits, "daily")
+weekly_habits = get_habits_by_periodicity(user.habits, "weekly")
+
+# 3. Listing all current habits
+all_habits = get_all_habits(user)
+
+(longest_streak_info, [h.name for h in daily_habits], [h.name for h in weekly_habits], [h.name for h in all_habits])
+
+def show_main_menu():
+    print("\nHabit Tracker CLI")
+    print("1. Add a new habit")
+    print("2. Mark a habit as complete")
+    print("3. Show current streaks")
+    print("4. Show analytics")
+    print("5. Exit")
+    choice = input("Enter your choice (1-5): ")
+    return choice
+
+def add_habit_cli():
+    name = input("Enter habit name: ")
+    periodicity = input("Enter habit periodicity (daily/weekly): ")
+    new_habit = Habit(name, periodicity)
+    user.add_habit(new_habit)
+    print(f"Habit '{name}' added.")
+
+def mark_habit_complete_cli():
+    habit_name = input("Enter habit name to mark as complete: ")
+    completion_date = date.today()  # Assuming marking for today
+    habit = user.get_habit(habit_name)
+    if habit:
+        habit.mark_complete(completion_date)
+        print(f"Habit '{habit_name}' marked as complete.")
+    else:
+        print("Habit not found.")
+
+def show_current_streaks():
+    for habit in user.habits:
+        print(f"Habit: {habit.name}, Current Streak: {habit.current_streak}")
+
+def show_analytics():
+    # You can expand this function to show more analytics
+    longest_streak_habit = get_longest_streak(user.habits)
+    print(f"Habit with the longest streak: {longest_streak_habit.name} ({longest_streak_habit.longest_streak})")
+    return user
+
+
+
+# Running the CLI (Example loop for Jupyter Notebook)
+for _ in range(5):  # Running 5 iterations for demonstration. Replace with 'while True:' for a continuous loop.
+    choice = show_main_menu()
+    if choice == '1':
+        add_habit_cli()
+    elif choice == '2':
+        mark_habit_complete_cli()
+    elif choice == '3':
+        show_current_streaks()
+    elif choice == '4':
+        show_analytics()
+    elif choice == '5':
+        print("Exiting CLI...")
+        break
+    else:
+        print("Invalid choice. Please try again.")
+        
+# Testing Habit tracker with Pytest, but seems to be testable without that module.
+
+import pytest
+
+def test_habit_creation():
+    habit = Habit("Read", "daily")
+    assert habit.name == "Read"
+    assert habit.periodicity == "daily"
+
+def test_user_add_habit():
+    user = User("John Doe")
+    habit = Habit("Exercise", "daily")
+    user.add_habit(habit)
+    assert habit in user.habits
+    assert len(user.habits) == 1
+
+pytest
