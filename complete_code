@@ -186,22 +186,3 @@ for _ in range(5):  # Running 5 iterations for demonstration. Replace with 'whil
     else:
         print("Invalid choice. Please try again.")
         
-# Testing Habit tracker with Pytest, but seems to be testable without that module.
-
-import pytest
-
-def test_habit_creation():
-    habit = Habit("Read", "daily")
-    assert habit.name == "Read"
-    assert habit.periodicity == "daily"
-
-def test_user_add_habit():
-    user = User("John Doe")
-    habit = Habit("Exercise", "daily")
-    user.add_habit(habit)
-    assert habit in user.habits
-    assert len(user.habits) == 1
-
-# Calling the function of the pytest module. 
-
-pytest
