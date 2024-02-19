@@ -27,6 +27,7 @@ Linux: Open a terminal, navigate to the directory containing the downloaded .sh 
 Open a terminal (or Anaconda Prompt on Windows) and type conda list. If Anaconda is correctly installed, you should see a list of installed packages.
 
 **Working with Spyder**
+
 Spyder is an IDE (integrated developement environment) designed for scientific Python development, featuring a powerful interactive console, advanced editing, debugging, visualization, and data exploration capabilities.
 
 1. Launching Spyder:
@@ -39,6 +40,7 @@ Variable Explorer: Inspect and interact with the variables created during your s
 Help: Access documentation for Python functions and modules.
 
 **Working with JupyterLab**
+
 JupyterLab allows you to create and share documents (notebooks) that contain live code, equations, visualizations, and narrative text.
 
 1. Launching JupyterLab:
